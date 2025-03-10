@@ -265,3 +265,63 @@ GROUP BY st, inspection_date
 ORDER BY st;
 
 
+-- Listing 9.21 (Deleting Rows From A Table)
+DELETE FROM meat_poultry_egg_inspect
+WHERE st IN('PR','VI');
+
+
+-- Listing 9.22 (Deleting Column From Table)
+ALTER TABLE meat_poultry_egg_inspect DROP COLUMN zip_copy;
+
+
+-- Listing 9.23 (Deleting Table From Database)
+DROP TABLE meat_poultry_egg_inspect_backup;
+
+
+-- Listing 9.24 (Demonstrating A Transcation Block)
+-- START TRANSACTION signals start of transaction block, can also use BEGIN in PostgreSQL
+-- COMMIT signals end of block and saves all changes
+-- ROLLBACK signals end of block and reverts all changes
+--a)
+ START TRANSACTION;
+ UPDATE meat_poultry_egg_inspect
+  SET company = 'AGRO Merchantss Oakland LLC'
+  WHERE company = 'AGRO Merchants Oakland, LLC';
+
+  SELECT company
+FROM meat_poultry_egg_inspect
+WHERE company LIKE 'AGRO%'
+ORDER BY company;
+
+ROLLBACK;
+
+-- b)
+ START TRANSACTION;
+UPDATE meat_poultry_egg_inspect
+  SET company = 'AGRO Merchants Oakland LLC'
+  WHERE company = 'AGRO Merchants Oakland, LLC';
+
+    SELECT company
+FROM meat_poultry_egg_inspect
+WHERE company LIKE 'AGRO%'
+ORDER BY company;
+
+COMMIT;
+
+
+-- IMPROVING PERFORMANCE WHEN UPDATING LARGE TABLES
+-- Listing 9.25 (Backing Up A Table While Adding & Filling New Column)
+CREATE TABLE meat_poultry_egg_inspect_backup AS
+SELECT 
+*, --new back up table will have all rows from the original and...
+'2018-02-07'::date AS reviewed_date --...additional populated column
+FROM meat_poultry_egg_inspect;
+
+
+-- Listing 9.26 (Swapping Table Names)
+ ALTER TABLE meat_poultry_egg_inspect RENAME TO meat_poultry_egg_inspect_temp;
+ ALTER TABLE meat_poultry_egg_inspect_backup RENAME TO meat_poultry_egg_inspect;
+ ALTER TABLE meat_poultry_egg_inspect_temp RENAME TO meat_poultry_egg_inspect_backup;
+
+
+
