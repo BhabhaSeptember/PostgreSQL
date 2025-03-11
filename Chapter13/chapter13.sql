@@ -212,18 +212,170 @@ SELECT date_1,
 FROM crime_reports;
 
 
--- Listing 13.12 ()
--- Listing 13.13 ()
--- Listing 13.14 ()
--- Listing 13.15 ()
--- Listing 13.16 ()
--- Listing 13.17 ()
--- Listing 13.18 ()
--- Listing 13.19 ()
--- Listing 13.20 ()
--- Listing 13.21 ()
--- Listing 13.22 ()
--- Listing 13.23 ()
--- Listing 13.24 ()
--- Listing 13.25 ()
+
+-- Listing 13.12 (Using Regular Expression In WHERE Clause)
+-- tilde (~) = performs case sensitive match on some regex
+-- tilde-asterix (~*) = case insensitive
+-- '!~*' = not match regex that is case insensitive
+
+SELECT geo_name
+FROM us_counties_2010
+ WHERE geo_name ~* '(.+lade.+|.+lare.+)'
+ORDER BY geo_name;
+
+-- below matches counties with 'ash' and excludes those starting with 'Wash'
+SELECT geo_name
+FROM us_counties_2010
+ WHERE geo_name ~* '.+ash.+' AND geo_name !~ 'Wash.+'
+ORDER BY geo_name;
+
+
+
+-- Listing 13.13 (Additional Regex Functions)
+regexp_replace(string, patter, replacement text)
+e.g. SELECT regexp_replace('05/12/2018', '\d{4}', '2017');
+
+regexp_split_to_table(string, pattern) 
+--splits delimited text into rows at delimiter
+e.g. SELECT regexp_split_to_table('Four,score,and,seven,years,ago', ',');
+
+regexp_split_to_array(string, pattern)
+-- splits delimited text into an array
+ SELECT regexp_split_to_array('Phil Mike Tony Steve', ',');
+
+
+
+-- Listing 13.14 (Finding Array Length)
+-- '1' in second param refers to first dimension of array i.e. the first array 
+-- [1, 2, 3][1, 2, 3] = 2 dimensional array example
+SELECT array_length(regexp_split_to_array('Phil Mike Tony Steve', ' '), 1);
+
+
+-- TEXT SEARCH DATA TYPES
+-- tsvector (reduces text to sorted list of lexemes) i.e. washes, washed, washing = wash
+-- tsvector removes stop words e.g. 'I', 'the', 'it', 'am' etc
+-- tsquery (represents search query terms & operators)
+-- Listing 13.15 (Converting text To tsvector Data)
+SELECT to_tsvector('I am walking across the sitting room to sit with you.');
+
+-- Listing 13.16 (Converting Search Terms To tsquery Data)
+-- tsquery represents full text search query, optimized with lexemes
+SELECT to_tsquery('walking & sitting');
+
+
+
+-- Listing 13.17 (Querying tsvector Type With tsquery)
+-- @@ = match operator for searching
+SELECT to_tsvector('I am walking across the sitting room') @@ to_tsquery('walking & sitting');
+SELECT to_tsvector('I am walking across the sitting room') @@ to_tsquery('walking & running');
+
+
+
+
+-- Listing 13.18 (Creating & Filling president_speeches Table)
+CREATE TABLE president_speeches (
+ sotu_id serial PRIMARY KEY,
+ president varchar(100) NOT NULL,
+ title varchar(250) NOT NULL,
+ speech_date date NOT NULL,
+ speech_text text NOT NULL,
+ search_speech_text tsvector
+);
+COPY president_speeches (president, title, speech_date, speech_text)
+FROM 'C:\SQL\sotu-1946-1977.csv'
+WITH (FORMAT CSV, DELIMITER '|', HEADER OFF, QUOTE '@');
+
+
+
+-- Listing 13.19 (Converting Speeches to tsvector In search_speech_text Column)
+UPDATE president_speeches
+ SET search_speech_text = to_tsvector('english', speech_text);
+
+
+
+-- Listing 13.20 (Creating GIN index For Text Search)
+-- GIN index contains entry for each lexeme and its location
+CREATE INDEX search_idx ON president_speeches USING gin(search_speech_text);
+
+
+
+-- Listing 13.21 (Finding Speeches Containing Word 'Vietnam')
+SELECT president, speech_date
+FROM president_speeches
+WHERE search_speech_text @@ to_tsquery('Vietnam')
+ORDER BY speech_date;
+
+
+
+-- Listing 13.22 (Showing Search Result Locations)
+-- ts_headline() function shows where search terms appear in text
+-- param1 = original text column
+-- param2 = word to highlight
+-- param3 = list of optional formatting parameters
+SELECT president,
+ speech_date,
+ts_headline(speech_text, to_tsquery('Vietnam'),
+'StartSel = <, 
+ StopSel = >,
+ MinWords=5,
+ MaxWords=7,
+ MaxFragments=1')
+FROM president_speeches
+WHERE search_speech_text @@ to_tsquery('Vietnam');
+
+
+
+-- Listing 13.23 (Using Multiple Search Terms)
+SELECT president, 
+ speech_date,
+ ts_headline(speech_text, to_tsquery('transportation & !roads'),
+ 'StartSel = <,
+ StopSel = >,
+ MinWords=5,
+ MaxWords=7,
+ MaxFragments=1')
+FROM president_speeches
+WHERE search_speech_text @@ to_tsquery('transportation & !roads');
+
+
+
+-- Listing 13.24 (Searching For Adjacent Words)
+-- (<->) = distance operator finds adjacent words i.e. military followed by defense (in variations of tenses)
+-- e.g. (<2>) would return matches where terms are exactly two words apart i.e. "military and defense"
+SELECT president,
+ speech_date,
+ ts_headline(speech_text, to_tsquery('military <-> defense'),
+ 'StartSel = <,
+ StopSel = >,
+ MinWords=5,
+ MaxWords=7,
+ MaxFragments=1')
+FROM president_speeches
+WHERE search_speech_text @@ to_tsquery('military <-> defense');
+
+
+
+-- Listing 13.25 (Scoring Relevance With ts_rank())
+-- ts_rank() = generates rank value based on how often lexemes appear in text
+-- ts_rank_cd() = considers how close lexemes searched are close to each other
+SELECT president,
+ speech_date,
+ ts_rank(search_speech_text,
+ to_tsquery('war & security & threat & enemy')) AS score
+FROM president_speeches
+WHERE search_speech_text @@ to_tsquery('war & security & threat & enemy')
+ORDER BY score DESC
+LIMIT 5
+
+
+
 -- Listing 13.26 ()
+SELECT president,
+ speech_date,
+ ts_rank(search_speech_text,
+ to_tsquery('war & security & threat & enemy'), 2)::numeric
+ AS score
+FROM president_speeches
+WHERE search_speech_text @@ to_tsquery('war & security & threat & enemy')
+ORDER BY score DESC
+LIMIT 5;
