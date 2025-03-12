@@ -232,7 +232,7 @@ ORDER BY geo_name;
 
 
 -- Listing 13.13 (Additional Regex Functions)
-regexp_replace(string, patter, replacement text)
+regexp_replace(string, pattern, replacement_text)
 e.g. SELECT regexp_replace('05/12/2018', '\d{4}', '2017');
 
 regexp_split_to_table(string, pattern) 
@@ -369,7 +369,10 @@ LIMIT 5
 
 
 
--- Listing 13.26 ()
+-- Listing 13.26 (Normalizing ts_rank() by speech length)
+-- the '2' in 3rd param of ts_rank() is normalization code
+-- code 2 instructs function to divide score by length of data in column...
+-- ...for reliable comparison between speeches of differing lengths
 SELECT president,
  speech_date,
  ts_rank(search_speech_text,
@@ -379,3 +382,6 @@ FROM president_speeches
 WHERE search_speech_text @@ to_tsquery('war & security & threat & enemy')
 ORDER BY score DESC
 LIMIT 5;
+
+
+
