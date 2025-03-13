@@ -183,16 +183,145 @@ $$ LANGUAGE plpython3u;
 
 
 -- Listing 15.17 (Creating grades And grades_history Tables)
+ CREATE TABLE grades (
+    student_id bigint,
+    course_id bigint, 
+    course varchar(30) NOT NULL,
+    grade varchar(5) NOT NULL,
+ PRIMARY KEY (student_id, course_id)
+ );
+
+  INSERT INTO grades
+ VALUES
+    (1, 1, 'Biology 2', 'F'),
+    (1, 2, 'English 11B', 'D'),
+    (1, 3, 'World History 11B', 'C'),
+    (1, 4, 'Trig 2', 'B');
+
+CREATE TABLE grades_history (
+    student_id bigint NOT NULL,
+    course_id bigint NOT NULL,
+    change_time timestamp with time zone NOT NULL,
+    course varchar(30) NOT NULL,
+    old_grade varchar(5) NOT NULL,
+    new_grade varchar(5) NOT NULL,
+ PRIMARY KEY (student_id, course_id, change_time)
+ );
 
 
 
+-- Listing 15.18(Creating record_if_grade_changed() Function)
+--  <> operator checks if there is a difference. only update if different
+--  for each row that is changed trigger passes two collections of data into record_if_grade_changed() function
+
+ CREATE OR REPLACE FUNCTION record_if_grade_changed()
+ RETURNS trigger AS
+ $$
+ BEGIN
+  IF NEW.grade <> OLD.grade THEN
+    INSERT INTO grades_history (
+        student_id,
+        course_id,
+        change_time,
+        course,
+        old_grade,
+        new_grade)
+    VALUES
+        (OLD.student_id,
+         OLD.course_id,
+         now(),
+         OLD.course,
+          OLD.grade,
+           NEW.grade);
+         END IF;
+         RETURN NEW;
+ END;
+ $$ LANGUAGE plpgsql;
 
 
--- Listing 15.18()
--- Listing 15.19 ()
--- Listing 15.20 ()
--- Listing 15.21 ()
--- Listing 15.22 ()
--- Listing 15.23 ()
--- Listing 15.24 ()
+
+-- Listing 15.19 (Creating grades_update Trigger)
+-- specify that trigger must fire after update occurs on grades row
+-- can use BEFORE or INSTEAD OF for other use cases
+-- FOR EACH ROW alternative is FOR EACH STATEMENT which runs procedure of trigger just once and not for each row
+ CREATE TRIGGER grades_update
+  AFTER UPDATE
+  ON grades
+ FOR EACH ROW
+ EXECUTE PROCEDURE record_if_grade_changed();
+
+
+
+-- Listing 15.20 (Testing grades_update Trigger)
+ UPDATE grades
+ SET grade = 'C'
+ WHERE student_id = 1 AND course_id = 1;
+
+
+  SELECT student_id,
+       change_time,
+       course,
+       old_grade,
+       new_grade
+ FROM grades_history;
+
+
+
+-- Listing 15.21 (Creating a temperature_test Table)
+ CREATE TABLE temperature_test (
+    station_name varchar(50),
+    observation_date date,
+    max_temp integer,
+    min_temp integer,
+    max_temp_group varchar(40),
+ PRIMARY KEY (station_name, observation_date)
+ );
+
+
+
+-- Listing 15.22 (Creating classify_max_temp() Function)
+-- Note difference between SQL syntax and PL/pgSQL syntax for CASE...WHEN...THEN
+-- a) semi-colon at end of each WHEN THEN clause
+-- b) use of (:=) assignment operator
+ CREATE OR REPLACE FUNCTION classify_max_temp()
+    RETURNS trigger AS
+ $$
+ BEGIN
+  CASE 
+       WHEN NEW.max_temp >= 90 THEN
+           NEW.max_temp_group := 'Hot';
+            WHEN NEW.max_temp BETWEEN 70 AND 89 THEN
+           NEW.max_temp_group := 'Warm';
+       WHEN NEW.max_temp BETWEEN 50 AND 69 THEN
+           NEW.max_temp_group := 'Pleasant';
+       WHEN NEW.max_temp BETWEEN 33 AND 49 THEN
+           NEW.max_temp_group :=  'Cold';
+       WHEN NEW.max_temp BETWEEN 20 AND 32 THEN
+           NEW.max_temp_group :=  'Freezing';
+       ELSE NEW.max_temp_group :=  'Inhumane';
+    END CASE;
+    RETURN NEW;
+ END;
+ $$ LANGUAGE plpgsql;
+
+
+
+-- Listing 15.23 (Creating temperature_insert Trigger)
+--  value created before inserting into the table
+ CREATE TRIGGER temperature_insert
+ BEFORE INSERT
+    ON temperature_test
+ FOR EACH ROW
+ EXECUTE PROCEDURE classify_max_temp();
+
+
+
+-- Listing 15.24 (Testing temperature_insert Trigger)
+ INSERT INTO temperature_test (station_name, observation_date, max_temp, min_temp)
+ VALUES
+    ('North Station', '1/19/2019', 10, -3),
+    ('North Station', '3/20/2019', 28, 19),
+    ('North Station', '5/2/2019', 65, 42),
+    ('North Station', '8/9/2019', 93, 74);
+ SELECT * FROM temperature_test;
 
