@@ -81,7 +81,7 @@ ALTER TABLE IF EXISTS public.employees
 END;
 
 
--- ============================== INSERT STATEMENTS ==============================
+-- ================================================================= INSERT STATEMENTS =================================================================
 
 INSERT INTO department (depart_name, depart_city)
 VALUES 
@@ -127,7 +127,7 @@ SET overtime_hours = 100
 WHERE overtime_id = 3
 
 
--- ============================================== LEFT JOIN =================================================================
+-- ================================================================= LEFT JOIN =================================================================
 
 SELECT emp.emp_id, 
 emp.first_name, 
@@ -148,13 +148,15 @@ ON emp.overtime_id = ot.overtime_id
 ORDER BY emp_id 
 
 
--- ============================================== TESTING CONSTRAINTS =================================================================
+-- ================================================================= TESTING CONSTRAINTS =================================================================
+
 
 INSERT INTO employees (first_name, surname, gender, address, email, depart_id, role_id, salary_id, overtime_id)
 VALUES 
 ('Dylan', 'Dundee', 'M', '23 Doringham Dunes', 'dylan@email.com', 4, 1, 1, 1);
 -- ERROR:  insert or update on table "employees" violates foreign key constraint "employees_depart_id_fkey"
 -- Detail: Key (depart_id)=(4) is not present in table "department".
+
 
 
 INSERT INTO employees (first_name, surname, gender, address, email, depart_id, role_id, salary_id, overtime_id)
@@ -164,11 +166,13 @@ VALUES
 -- Detail: Key (role_id)=(5) is not present in table "roles".
 
 
+
 INSERT INTO employees (first_name, surname, gender, address, email, depart_id, role_id, salary_id, overtime_id)
 VALUES 
 ('Sally', 'Samuels', 'F', '25 Sterling Street', 'sally@email.com', 1, 1, 6, 1);
 -- ERROR:  insert or update on table "employees" violates foreign key constraint "employees_salary_id_fkey"
 -- Detail: Key (salary_id)=(6) is not present in table "salaries".
+
 
 
 INSERT INTO employees (first_name, surname, gender, address, email, depart_id, role_id, salary_id, overtime_id)
