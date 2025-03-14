@@ -182,30 +182,147 @@ VALUES
 SELECT * FROM status
 
 
-INSERT INTO my_contacts 
-VALUES 
-
-
-INSERT INTO seeking (seeking)
-VALUES 
-('Marriage within first year of dating with a stable individual'),
-('Serious, long-term relationship that can lead to marriage but not actively looking to marry within a year'),
-('Open Relationship'),
-('Friendship/Companionship'),
-
-('Hookup')
+INSERT INTO my_contacts (last_name, first_name, phone, email, gender, birthday, prof_id, zip_code, status_id)
+VALUES
+('Samuels', 'Mike', '0723451234', 'mike@email.com', 'M', '1991/01/23', 1, '6001', 1);
+(''),
+(''),
+(''),
+(''),
+(''),
+(''),
+(''),
+(''),
+(''),
+(''),
+(''),
+(''),
+(''),
+(''),
+(''),
+(''),
 (''),
 (''),
 ('');
+SELECT * FROM my_contacts
 
-
-INSERT INTO interests 
+INSERT INTO seeking (seeking)
 VALUES 
+('Marriage within the first year of dating with a stable individual'),
+('Serious, long-term relationship that can lead to marriage but not actively seeking to marry any time soon'),
+('Casual relationship, but open to committing to serious long-term relationship for the right person'),
+('Open relationship'),
+('Friendship/companionship. Open to long-distance or short-distance relations'),
+('Strictly hookup');
+SELECT * FROM seeking
+
+
+INSERT INTO interests (interest) 
+VALUES 
+('Reading e.g. novels, magazines,  journals'), 
+('Writing e.g. blogging, journaling'),
+('Field sports e.g. soccer, netball, hockey, athletics'), 
+('Water sports e.g. waterpolo, swimming '),
+('Extreme sports e.g. skydiving'),
+('Boardgames e.g. chess, 30seconds'), 
+('Watching movies/series'),
+('Computer/video games'),
+('Crotchet/knitting'), 
+('Singing'), 
+('Dancing'),
+('Drawing'),
+('Jogging/running'),
+('Taking walks'),
+('Stargazing/astrology');
+SELECT * FROM interests
 
 
 INSERT INTO contact_seeking 
 VALUES 
+(1, 1);
 
 
 INSERT INTO contact_interest 
 VALUES 
+(1, 13),
+(1, 1),
+(1, 10),
+(1, 15),
+(1, 2)
+
+
+
+-- ============================== QUERIES ==============================
+
+-- ============================== CONTACT INFO ==============================
+
+SELECT status.status,
+contact.first_name,
+contact.last_name,
+contact.gender,
+contact.birthday,
+prof.profession,
+zip.city,
+zip.province,
+s.seeking
+FROM my_contacts AS contact
+JOIN profession AS prof
+ON contact.prof_id = prof.prof_id
+JOIN zip_code AS zip
+ON contact.zip_code = zip.zip_code
+JOIN status 
+ON contact.status_id = status.status_id
+JOIN contact_seeking AS c_s
+ON contact.contact_id = c_s.contact_id
+JOIN seeking AS s
+ON c_s.seeking_id = s.seeking_id
+
+
+
+
+
+-- ============================== SEARCH BY INTERESTS ==============================
+
+SELECT 
+contact.first_name,
+contact.last_name,
+zip.city,
+zip.province,
+i.interest,
+contact.phone
+FROM my_contacts AS contact
+JOIN 
+contact_interest AS c_i
+ON contact.contact_id = c_i.contact_id
+JOIN interests AS i
+ON c_i.interest_id = i.interest_id
+JOIN zip_code AS zip
+ON contact.zip_code = zip.zip_code
+WHERE i.interest_id = 15
+
+
+-- ============================== SEARCH BY SEEKING ==============================
+
+SELECT 
+contact.first_name,
+contact.last_name,
+zip.city,
+zip.province,
+s.seeking,
+contact.phone
+FROM my_contacts AS contact
+JOIN contact_seeking AS c_s
+ON contact.contact_id = c_s.contact_id
+JOIN seeking AS s
+ON c_s.seeking_id = s.seeking_id
+JOIN zip_code AS zip
+ON contact.zip_code = zip.zip_code
+WHERE s.seeking_id = 1
+
+
+
+
+
+
+
+
