@@ -28,11 +28,12 @@ CREATE TABLE IF NOT EXISTS public.profession
 
 CREATE TABLE IF NOT EXISTS public.zip_code
 (
-    zip_code character(4),
+    zip_code character(4) CHECK (zip_code ~ '^[0-9]{4}$'),
     city character varying(50),
     province character varying(20),
     PRIMARY KEY (zip_code)
 );
+
 
 CREATE TABLE IF NOT EXISTS public.status
 (
@@ -127,51 +128,62 @@ ALTER TABLE IF EXISTS public.contact_seeking
 END;
 
 
-
 -- ============================================= INSERT STATEMENTS =============================================
 
 INSERT INTO profession (profession)
 VALUES 
-('Medical Doctor'),
-('Accountant'),
-('Lawyer'),
-('Architect'),
-('Chef'),
-('Teacher'),
-('Software Developer'),
-('Police Officer'),
-('Journalist'),
-('Waiting Staff'),
-('Hairstylist'),
-('Salesperson'),
-('Engineer'),
-('Secretary'),
-('Delivery Person'),
-('Firefighter');
+('Medical Doctor'), 
+('Accountant'), 
+('Lawyer'), 
+('Architect'), 
+('Chef'), 
+('Teacher'), 
+('Software Developer'), 
+('Police Officer'), 
+('Journalist'), 
+('Waiting Staff'), 
+('Hairstylist'), 
+('Salesperson'), 
+('Engineer'), 
+('Secretary'), 
+('Delivery Person'), 
+('Firefighter'); 
 SELECT * FROM profession
+
+-- ================ TESTING PROFESSION UNIQUE CONSTRAINT  ================ 
+-- INSERT INTO profession (profession)
+-- VALUES 
+-- ('Medical Doctor');
+
 
 
 INSERT INTO zip_code (zip_code, city, province)
 VALUES 
-('6001', 'Port Elizabeth', 'Eastern Cape'),
-('5201', 'East London', 'Eastern Cape'),
-('9300', 'Bloemfontein', 'Free State'),
-('9459', 'Welkom', 'Free State'),
-('2000', 'Johannesburg', 'Gauteng'),
-('0001', 'Pretoria', 'Gauteng'),
-('4016', 'Durban', 'KwaZulu-Natal'),
-('3201', 'Pietermaritzburg', 'KwaZulu-Natal'),
-('0700', 'Polokwane', 'Limpopo'),
-('0850', 'Tzaneen', 'Limpopo'),
-('1200', 'Mbombela', 'Mpumalanga'),
-('1034', 'eMalahleni', 'Mpumalanga'),
-('8300', 'Kimberley', 'Northern Cape'),
-('8800', 'Upington', 'Northern Cape'),
-('2735', 'Mahikeng', 'North West'),
-('2570', 'Klerksdorp', 'North West'),
-('7102', 'Cape Town', 'Western Cape'),
-('6531', 'George', 'Western Cape');
+('6001', 'Port Elizabeth', 'Eastern Cape'), 
+('5201', 'East London', 'Eastern Cape'), 
+('9300', 'Bloemfontein', 'Free State'), 
+('9459', 'Welkom', 'Free State'), 
+('2000', 'Johannesburg', 'Gauteng'), 
+('0001', 'Pretoria', 'Gauteng'), 
+('4016', 'Durban', 'KwaZulu-Natal'), 
+('3201', 'Pietermaritzburg', 'KwaZulu-Natal'), 
+('0700', 'Polokwane', 'Limpopo'), 
+('0850', 'Tzaneen', 'Limpopo'), 
+('1200', 'Mbombela', 'Mpumalanga'), 
+('1034', 'eMalahleni', 'Mpumalanga'), 
+('8300', 'Kimberley', 'Northern Cape'), 
+('8800', 'Upington', 'Northern Cape'), 
+('2735', 'Mahikeng', 'North West'), 
+('2570', 'Klerksdorp', 'North West'), 
+('7102', 'Cape Town', 'Western Cape'), 
+('6531', 'George', 'Western Cape'); 
 SELECT * FROM zip_code
+
+-- ================ TESTING ZIP_CODE CHECK CONSTRAINT  ================ 
+-- INSERT INTO zip_code (zip_code, city, province)
+-- VALUES 
+-- ('1', 'Test_City', 'Test_Province')
+
 
 
 INSERT INTO status (status)
@@ -183,29 +195,32 @@ VALUES
 SELECT * FROM status
 
 
+
 INSERT INTO my_contacts (last_name, first_name, phone, email, gender, birthday, prof_id, zip_code, status_id)
 VALUES
-('Samuels', 'Mike', '0723451234', 'mike@email.com', 'M', '1991/01/23', 1, '6001', 1);
-(''),
-(''),
-(''),
-(''),
-(''),
-(''),
-(''),
-(''),
-(''),
-(''),
-(''),
-(''),
-(''),
-(''),
-(''),
-(''),
-(''),
-(''),
-('');
+('Samuels', 'Mike', '0723451234', 'mike@email.com', 'M', '1991/01/23', 1, '6001', 1),
+('Posh', 'Peter', '0835551234', 'peter@email.com', 'M', '1985/05/22', 5, '6531', 1),
+('Greyling', 'Grant', '0712221234', 'grant@email.com', 'M', '1987/12/29', 8, '3201', 2 ),
+('Peters', 'Pamela', '0843331234', 'pamela@email.com', 'F', '1995/01/10', 11, '8300', 1),
+('Myers', 'Melanie', '0727771234', 'melanie@email.com', 'F', '1996/02/14', 9, '0700', 1),
+('Bundy', 'Timothy', '0818881234', 'timothy@email.com', 'M', '2000/01/01', 12, '9300', 3),
+('Steenkamp', 'Lauren', '0794441234', 'lauren@email.com', 'F', '1965/09/12', 14, '2570', 1),
+('Mbatha', 'Zolani', '0823331234', 'zolani@email.com', 'M', '1991/09/21', 4, '0001', 2),
+('Mshengu', 'Thandeka', '0831112345', 'thandeka@email.com', 'F', '1995/12/22', 2, '4016', 2),
+('Ndlovu', 'Nolwazi', '0734442345', 'nolwazi@email.com', 'F', '1990/11/22', 6, '5201', 2),
+('Sibanda', 'Miriam', '0820001234', 'miriam@email.com', 'F', '1982/01/15', 3, '2000', 4),
+('Elba', 'Akha', '0620001234', 'akha@email.com', 'M', '1979/08/29', 16, '0850', 1),
+('Nkosi', 'Manqele', '0787772345', 'manqele@email.com', 'M', '1994/04/24', 8, '4016', 1),
+('Moodley', 'Brian', '0630002345', 'brian@email.com', 'M', '1992/10/20', 2, '4016', 2),
+('Naidoo', 'Natalie', '0678882345', 'natalie@email.com', 'F', '1986/09/12', 1, '0700', 2),
+('Abrahams', 'Nicole', '0842223456', 'nicole@email.com', 'F', '1998/10/01', 7, '3201', 2),
+('de Wet', 'Shannon', '0795552345', 'shannon@email.com', 'F', '2001/07/19', 6, '6531', 1),
+('Mkhwanazi', 'Mandla', '0824442345', 'mandla@email.com', 'M', '2000/08/28', 8, '2570', 4),
+('Mhlongo', 'Naledi', '0831237777', 'naledi@email.com', 'F', '1995/05/25', 12, '5201', 2),
+('October', 'Philip', '0798881234', 'philip@email.com', 'M', '1999/09/19', 4, '0001', 2 );
 SELECT * FROM my_contacts
+
+
 
 INSERT INTO seeking (seeking)
 VALUES 
@@ -218,38 +233,77 @@ VALUES
 SELECT * FROM seeking
 
 
+
 INSERT INTO interests (interest) 
 VALUES 
 ('Reading e.g. novels, magazines,  journals'), 
-('Writing e.g. blogging, journaling'),
+('Writing e.g. blogging, journaling'), 
 ('Field sports e.g. soccer, netball, hockey, athletics'), 
-('Water sports e.g. waterpolo, swimming '),
-('Extreme sports e.g. skydiving'),
-('Boardgames e.g. chess, 30seconds'), 
-('Watching movies/series'),
-('Computer/video games'),
-('Crotchet/knitting'), 
+('Water sports e.g. waterpolo, swimming '), 
+('Extreme sports e.g. skydiving'), 
+('Boardgames e.g. chess, 30seconds'),  
+('Watching movies/series'), 
+('Computer/video games'), 
+('Crotchet/knitting'),   
 ('Singing'), 
-('Dancing'),
-('Drawing'),
-('Jogging/running'),
-('Taking walks'),
-('Stargazing/astrology');
+('Dancing'), 
+('Drawing'), 
+('Jogging/running'), 
+('Taking walks'), 
+('Stargazing/astrology'); 
 SELECT * FROM interests
+
 
 
 INSERT INTO contact_seeking 
 VALUES 
-(1, 1);
+(1, 1),
+(2, 1),
+(3, 2),
+(4, 2),
+(5, 3),
+(6, 3),
+(7, 4),
+(8, 4),
+(9, 5),
+(10, 5),
+(11, 6),
+(12, 6),
+(13, 1),
+(14, 2),
+(15, 3),
+(16, 4),
+(17, 5),
+(18, 6),
+(19, 1),
+(20, 2);
+SELECT * FROM contact_seeking
+
 
 
 INSERT INTO contact_interest 
 VALUES 
-(1, 13),
-(1, 1),
-(1, 10),
-(1, 15),
-(1, 2)
+(1, 13), (1, 1), (1, 10), (1, 15), (1, 2),
+(2, 2 ), (2, 4), (2, 6), (2, 8), (2, 10),
+(3, 3), (3, 5), (3, 7), (3, 9), (3, 11),
+(4, 4), (4, 6), (4, 8), (4, 10), (4, 12),
+(5, 5), (5, 7), (5, 9), (5, 11), (5, 13),
+(6, 6), (6, 8), (6, 10), (6, 12), (6, 14),
+(7, 7), (7, 9), (7, 11), (7, 13), (7, 15),
+(8, 8), (8, 10), (8, 12), (8, 14), (8, 15),
+(9, 9), (9, 11), (9, 13), (9, 15), (9, 1),
+(10, 1), (10, 3), (10, 5), (10, 7), (10, 9),
+(11, 2), (11, 3), (11, 4), (11, 5), (11, 6),
+(12, 7), (12, 8), (12, 9), (12, 10), (12, 11),
+(13, 12), (13, 13), (13, 14), (13, 15), (13, 10),
+(14, 1), (14, 3), (14, 10), (14, 11), (14, 14),
+(15, 3), (15, 4), (15, 7), (15, 8), (15, 10),
+(16, 2), (16, 9), (16, 8), (16, 11), (16, 13),
+(17, 1), (17, 5), (17, 6), (17, 8), (17, 12),
+(18, 4), (18, 5), (18, 7), (18, 9), (18, 10),
+(19, 3), (19, 5), (19, 8), (19, 10), (19, 15),
+(20, 1), (20, 2), (20, 5), (20, 9), (20, 10);
+SELECT * FROM contact_interest
 
 
 
@@ -277,8 +331,6 @@ JOIN contact_seeking AS c_s
 ON contact.contact_id = c_s.contact_id
 JOIN seeking AS s
 ON c_s.seeking_id = s.seeking_id
-
-
 
 
 
@@ -319,11 +371,3 @@ ON c_s.seeking_id = s.seeking_id
 JOIN zip_code AS zip
 ON contact.zip_code = zip.zip_code
 WHERE s.seeking_id = 1
-
-
-
-
-
-
-
-
