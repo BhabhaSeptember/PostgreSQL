@@ -57,15 +57,15 @@ CREATE TABLE IF NOT EXISTS public.seeking
 
 CREATE TABLE IF NOT EXISTS public.contact_interest
 (
-    contact_id bigserial,
-    interest_id bigserial,
+    contact_id integer,
+    interest_id integer,
     PRIMARY KEY (contact_id, interest_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.contact_seeking
 (
-    contact_id bigserial,
-    seeking_id bigserial,
+    contact_id integer,
+    seeking_id integer,
     PRIMARY KEY (contact_id, seeking_id)
 );
 
@@ -125,6 +125,7 @@ ALTER TABLE IF EXISTS public.contact_seeking
     NOT VALID;
 
 END;
+
 
 
 -- ============================================= INSERT STATEMENTS =============================================
