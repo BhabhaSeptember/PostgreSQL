@@ -1,0 +1,163 @@
+================================== COMMANDS TO BE RUN IN COMMAND PROMPT ==================================
+
+help //lists availablecommands
+help time //displays information on using the time command
+
+psql -d analysis -U postgres //connects local machine to analysis db
+
+================= LISTING 16.1 (Entering Single-line Query) =================
+
+analysis=# SELECT geo_name FROM us_counties_2010 LIMIT 3;
+
+             geo_name
+-----------------------------------
+ Autauga County
+ Baldwin County
+ Barbour County
+ --snipped--
+(3143 rows)
+
+
+
+================= LISTING 16.2 (Entering Multi-line Query) =================
+
+analysis=# SELECT geo_name
+analysis-# FROM us_counties_2010
+analysis-# LIMIT 3;
+
+             geo_name
+-----------------------------------
+ Autauga County
+ Baldwin County
+ Barbour County
+ --snipped--
+(3143 rows)
+
+
+
+================= LISTING 16.3 (Showing Open Parentheses) =================
+
+ analysis=# CREATE TABLE wineries (
+ analysis(# id bigint,
+ analysis(# winery_name varchar(100)
+ analysis(# );
+
+ CREATE TABLE
+
+
+EDITING QUERIES
+\e or \edit meta-command //opens late-executed query in text editor
+
+
+================= LISTING 16.4 (Query with Scrolling Results) =================
+
+ analysis=# SELECT geo_name FROM us_counties_2010; //shows 'more' at the bottom of output to scroll through for more results
+
+
+\pset pager meta-command //immediately taken to end of results
+
+
+================= LISTING 16.5 (Normal Display of grades Table Query) ====================
+
+analysis=# SELECT * FROM grades;
+
+ student_id | course_id |      course       | grade
+------------+-----------+-------------------+-------
+          1 |         2 | English 11B       | D
+          1 |         3 | World History 11B | C
+          1 |         4 | Trig 2            | B
+          1 |         1 | Biology 2         | C
+(4 rows)
+
+
+\x //changes to expanded view
+Expanded display is on.
+
+
+analysis=# \x auto //automatically sets expansion according to size of file
+============== LISTING 16.6 (Expanded Display of grades Table Query) =================
+
+analysis=# SELECT * FROM grades;
+-[ RECORD 1 ]-----------------
+student_id | 1
+course_id  | 2
+course     | English 11B
+grade      | D
+-[ RECORD 2 ]-----------------
+student_id | 1
+course_id  | 3
+course     | World History 11B
+grade      | C
+-[ RECORD 3 ]-----------------
+student_id | 1
+course_id  | 4
+course     | Trig 2
+grade      | B
+-[ RECORD 4 ]-----------------
+student_id | 1
+course_id  | 1
+course     | Biology 2
+grade      | C
+
+
+
+analysis=# \dt+ //command shows all tables in database
+                                                   List of relations
+ Schema |               Name               | Type  |  Owner   | Persistence | Access method |    Size    | Description
+--------+----------------------------------+-------+----------+-------------+---------------+------------+-------------
+ public | char_data_types                  | table | postgres | permanent   | heap          | 16 kB      |
+ public | check_constraint_example         | table | postgres | permanent   | heap          | 0 bytes    |
+ public | crime_reports                    | table | postgres | permanent   | heap          | 48 kB      |
+ public | current_time_example             | table | postgres | permanent   | heap          | 80 kB      |
+ public | date_time_types                  | table | postgres | permanent   | heap          | 8192 bytes |
+ public | departments                      | table | postgres | permanent   | heap          | 8192 bytes |
+ public | employees                        | table | postgres | permanent   | heap          | 8192 bytes |
+ --snipped--
+
+
+
+
+analysis=# \dt+ us* //filtering output
+     List of relations
+ Schema |       Name       | Type  |  Owner   |  Size   | Description 
+ -------+------------------+-------+----------+---------+-------------
+ public | us_counties_2000 | table | postgres | 336 kB  | 
+ public | us_counties_2010 | table | postgres | 1352 kB |
+
+
+
+
+
+================= LISTING 16.7 (Importing Data Using \copy) =================
+ analysis=# DROP TABLE state_regions;
+ DROP TABLE
+ analysis=# CREATE TABLE state_regions (
+ analysis(#     st varchar(2) CONSTRAINT st_key PRIMARY KEY,
+ analysis(#     region varchar(20) NOT NULL
+ analysis(# );
+ CREATE TABLE
+ analysis=# \copy state_regions FROM 'C:\SQL\state_regions.csv' WITH (FORMAT CSV, HEADER);
+
+
+
+
+================= LISTING 16.8 (Saving Query Output to File) =================
+
+analysis=# \a \f , \pset footer
+Output format is unaligned.
+Field separator is ",".
+Default footer is off.
+
+analysis=# SELECT * FROM grades;
+
+student_id,course_id,course,grade
+1,2,English 11B,D
+1,3,World History 11B,C
+1,4,Trig 2,B
+1,1,Biology 2,C
+
+
+
+
+analysis=# createdb -U postgres -e box_office  //create database
+analysis-# psql -d box_office -U postgres //connect to new database
