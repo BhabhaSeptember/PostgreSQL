@@ -1,0 +1,111 @@
+psql -d analysis -U postgres
+Password for user postgres:
+psql (16.1)
+WARNING: Console code page (437) differs from Windows code page (1252)
+         8-bit characters might not work correctly. See psql reference
+         page "Notes for Windows users" for details.
+Type "help" for help.
+
+analysis=# SELECT * FROM teachers;
+ id | first_name | last_name |       school        | hire_date  | salary | personal_days
+----+------------+-----------+---------------------+------------+--------+---------------
+  1 | Janet      | Smith     | F.D. Roosevelt HS   | 2011-10-30 |  36200 |             4
+  2 | Lee        | Reynolds  | F.D. Roosevelt HS   | 1993-05-22 |  65000 |             5
+  3 | Samuel     | Cole      | Myers Middle School | 2005-08-01 |  43500 |             4
+  4 | Samantha   | Bush      | Myers Middle School | 2011-10-30 |  36200 |             4
+  5 | Betty      | Diaz      | Myers Middle School | 2005-08-30 |  43500 |             4
+  6 | Kathleen   | Roush     | F.D. Roosevelt HS   | 2010-10-22 |  38500 |             4
+(6 rows)
+
+
+analysis=# select DISTINCT school FROM teachers;
+       school
+---------------------
+ Myers Middle School
+ F.D. Roosevelt HS
+(2 rows)
+
+
+analysis=# SELECT first_name, last_name, salary
+analysis-# FROM teachers
+analysis-# ORDER BY salary DESC;
+ first_name | last_name | salary
+------------+-----------+--------
+ Lee        | Reynolds  |  65000
+ Samuel     | Cole      |  43500
+ Betty      | Diaz      |  43500
+ Kathleen   | Roush     |  38500
+ Janet      | Smith     |  36200
+ Samantha   | Bush      |  36200
+(6 rows)
+
+analysis=# SELECT first_name
+analysis-# FROM teachers
+analysis-# WHERE first_name LIKE 'sam%';
+ first_name
+------------
+(0 rows)
+
+
+analysis=# SELECT first_name
+analysis-# FROM teachers
+analysis-# WHERE first_name ILIKE 'sam%';
+ first_name
+------------
+ Samuel
+ Samantha
+(2 rows)
+
+
+analysis=# SELECT timestamp_column, CAST(timestamp_column AS varchar(10))
+analysis-# FROM date_time_types;
+       timestamp_column        | timestamp_column
+-------------------------------+------------------
+ 2018-12-31 08:00:00+02        | 2018-12-31
+ 2018-12-31 11:00:00+02        | 2018-12-31
+ 2018-12-30 16:00:00+02        | 2018-12-30
+ 2025-02-24 13:22:16.668593+02 | 2025-02-24
+(4 rows)
+
+
+analysis=# \a \f , \pset footer
+Output format is aligned.
+Field separator is ",".
+Default footer is off.
+analysis=# SELECT max_temp,
+analysis-#  CASE WHEN max_temp >= 90 THEN 'Hot'
+analysis-# WHEN max_temp BETWEEN 70 AND 89 THEN 'Warm'
+analysis-# WHEN max_temp BETWEEN 50 AND 69 THEN 'Pleasant'
+analysis-#  WHEN max_temp BETWEEN 33 AND 49 THEN 'Cold'
+analysis-# WHEN max_temp BETWEEN 20 AND 32 THEN 'Freezing'
+analysis-# ELSE 'Inhumane'
+analysis-#  END AS temperature_group
+analysis-# FROM temperature_readings;
+ max_temp | temperature_group
+----------+-------------------
+       31 | Freezing
+       34 | Cold
+       32 | Freezing
+       32 | Freezing
+       34 | Cold
+       38 | Cold
+       40 | Cold
+       45 | Cold
+       44 | Cold
+       28 | Freezing
+       25 | Freezing
+       22 | Freezing
+       29 | Freezing
+       46 | Cold
+       44 | Cold
+       32 | Freezing
+       14 | Inhumane
+       10 | Inhumane
+       19 | Inhumane
+       25 | Freezing
+       28 | Freezing
+       31 | Freezing
+       33 | Cold
+       36 | Cold
+       43 | Cold
+analysis=#

@@ -1,9 +1,14 @@
 ================================== COMMANDS TO BE RUN IN COMMAND PROMPT ==================================
 
-help //lists availablecommands
-help time //displays information on using the time command
+//lists available commands
+help 
 
-psql -d analysis -U postgres //connects local machine to analysis db
+//displays information on using the time command
+help time 
+
+//connects local machine to analysis db
+//postgres is default super user with full permissions
+psql -d analysis -U postgres 
 
 ================= LISTING 16.1 (Entering Single-line Query) =================
 
@@ -46,15 +51,18 @@ analysis-# LIMIT 3;
 
 
 EDITING QUERIES
-\e or \edit meta-command //opens late-executed query in text editor
+//opens late-executed query in text editor
+\e or \edit meta-command 
 
 
 ================= LISTING 16.4 (Query with Scrolling Results) =================
 
- analysis=# SELECT geo_name FROM us_counties_2010; //shows 'more' at the bottom of output to scroll through for more results
+//shows 'more' at the bottom of output to scroll through for more results
+ analysis=# SELECT geo_name FROM us_counties_2010; 
 
 
-\pset pager meta-command //immediately taken to end of results
+//immediately taken to end of results
+\pset pager meta-command 
 
 
 ================= LISTING 16.5 (Normal Display of grades Table Query) ====================
@@ -74,7 +82,9 @@ analysis=# SELECT * FROM grades;
 Expanded display is on.
 
 
-analysis=# \x auto //automatically sets expansion according to size of file
+//automatically sets expansion according to size of file
+analysis=# \x auto 
+
 ============== LISTING 16.6 (Expanded Display of grades Table Query) =================
 
 analysis=# SELECT * FROM grades;
@@ -118,6 +128,7 @@ analysis=# \dt+ //command shows all tables in database
 
 
 analysis=# \dt+ us* //filtering output
+ 
      List of relations
  Schema |       Name       | Type  |  Owner   |  Size   | Description 
  -------+------------------+-------+----------+---------+-------------
@@ -129,6 +140,7 @@ analysis=# \dt+ us* //filtering output
 
 
 ================= LISTING 16.7 (Importing Data Using \copy) =================
+ 
  analysis=# DROP TABLE state_regions;
  DROP TABLE
  analysis=# CREATE TABLE state_regions (
