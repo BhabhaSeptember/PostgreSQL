@@ -73,7 +73,6 @@ ALTER TABLE IF EXISTS public.order_details
 
 END;
 
-
 -- ============================================== INSERT STATEMENTS ============================================== 
 
 INSERT INTO products_menu (name, price)
@@ -149,47 +148,15 @@ ON cart.product_id = p_m.product_id;
 
 -- ============================================= 3) CHECKOUT / SHOPPING SIMULATION ======================================================= 
 
-INSERT INTO order_header(user_id, order_date)
-VALUES 
-(1, now());
-SELECT * FROM order_header
-
-
-INSERT INTO order_details(order_id, product_id, qty)
-SELECT
-(SELECT order_id FROM order_header), product_id, qty 
-FROM cart;
-SELECT * FROM cart;
-SELECT * FROM order_details;
-DELETE FROM cart;
-
-SELECT 
-users.username,
-o_h.order_id,
-o_h.order_date,
-p_m.name,
--- cart.qty,
--- p_m.qty,
-p_m.price AS unit_price
-FROM 
-order_details AS o_d JOIN order_header AS o_h ON o_d.order_id = o_h.order_id
-JOIN users ON users.user_id = o_h.user_id
-JOIN products_menu AS p_m ON p_m.product_id = cart.product_id
-JOIN cart ON cart.product_id = o_d.product_id
-
-
-
-
-
 -- ===== DEMO =====
--- USER 1 
+-- USER 
 -- adding to cart
 DO $$
 BEGIN
-IF EXISTS ( SELECT * FROM cart WHERE product_id = 3) THEN 
-UPDATE cart SET qty = qty + 1 WHERE product_id = 3;
+IF EXISTS ( SELECT * FROM cart WHERE product_id = 5) THEN 
+UPDATE cart SET qty = qty + 1 WHERE product_id = 5;
 ELSE 
-INSERT INTO cart(product_id, qty) VALUES(3, 1);
+INSERT INTO cart(product_id, qty) VALUES(5, 2);
 END IF;
 END $$
 SELECT * FROM cart
@@ -207,10 +174,10 @@ ON cart.product_id = p_m.product_id;
 -- deleting from cart
 DO $$
 BEGIN
-IF EXISTS ( SELECT * FROM cart WHERE product_id = 1 AND qty > 1) THEN 
-UPDATE cart SET qty = qty - 1 WHERE product_id = 1;
+IF EXISTS ( SELECT * FROM cart WHERE product_id = 5 AND qty > 1) THEN 
+UPDATE cart SET qty = qty - 1 WHERE product_id = 5;
 ELSE 
-DELETE  FROM cart WHERE product_id = 1;
+DELETE  FROM cart WHERE product_id = 5;
 END IF;
 END $$
 SELECT * FROM cart
@@ -228,104 +195,48 @@ ON cart.product_id = p_m.product_id;
 -- checkout
 INSERT INTO order_header(user_id, order_date)
 VALUES 
-(1, now());
+(3, now());
 SELECT * FROM order_header;
 
-
-
-INSERT INTO order_details(order_id, product_id, qty)
-SELECT
-(SELECT order_id FROM order_header), product_id, qty 
-FROM cart;
-SELECT * FROM order_details;
-DELETE FROM cart;
-SELECT * FROM cart
-
--- single order
 SELECT 
-o_d.order_id,
+o_h.order_id,
+o_h.user_id,
 users.username,
-p_m.name AS item,
-o_d.qty,
-p_m.price AS unit_price
-FROM order_details AS o_d
-JOIN products_menu AS p_m ON o_d.product_id = p_m.product_id
-JOIN order_header AS o_h ON o_d.order_id = o_d.order_id
-JOIN users ON users.user_id = o_h.user_id
+o_h.order_date
+FROM order_header AS o_h JOIN users ON o_h.user_id = users.user_id
 
 
-
-
--- USER 2
--- adding to cart
-DO $$
-BEGIN
-IF EXISTS ( SELECT * FROM cart WHERE product_id = 7) THEN 
-UPDATE cart SET qty = qty + 1 WHERE product_id = 7;
-ELSE 
-INSERT INTO cart(product_id, qty) VALUES(7, 5);
-END IF;
-END $$
-SELECT * FROM cart
-
-
-SELECT 
-cart.product_id,
-p_m.name,
-p_m.price AS unit_price,
-cart.qty
-FROM cart AS cart
-JOIN products_menu AS p_m
-ON cart.product_id = p_m.product_id;
-
-
--- deleting from cart
-DO $$
-BEGIN
-IF EXISTS ( SELECT * FROM cart WHERE product_id = 7 AND qty > 1) THEN 
-UPDATE cart SET qty = qty - 1 WHERE product_id = 7;
-ELSE 
-DELETE  FROM cart WHERE product_id = 7;
-END IF;
-END $$
-SELECT * FROM cart
-
-SELECT 
-cart.product_id,
-p_m.name,
-p_m.price,
-cart.qty
-FROM cart AS cart
-JOIN products_menu AS p_m
-ON cart.product_id = p_m.product_id;
-
-
--- checkout
-INSERT INTO order_header(user_id, order_date)
-VALUES 
-(2, now());
-SELECT * FROM order_header;
-
-
-DELETE FROM order_details WHERE order_id = 2
 INSERT INTO order_details(order_id, product_id, qty)
 SELECT
 (SELECT MAX(order_id) FROM order_header), product_id, qty 
 FROM cart;
-SELECT * FROM order_details;
 DELETE FROM cart;
-SELECT * FROM cart;
+SELECT * FROM cart
 
 -- single order
--- todo: edit below for single & double order
 SELECT 
 o_d.order_id,
 users.username,
 p_m.name AS item,
 o_d.qty,
-p_m.price AS unit_price
-FROM order_details AS o_d
-JOIN products_menu AS p_m ON o_d.product_id = p_m.product_id
-JOIN order_header AS o_h ON o_d.order_id = o_d.order_id
+p_m.price AS unit_price,
+o_h.order_date
+FROM order_details AS o_d JOIN order_header AS o_h ON o_d.order_id = o_h.order_id
 JOIN users ON users.user_id = o_h.user_id
-WHERE o_d.order_id = 2
+JOIN products_menu AS p_m ON p_m.product_id = o_d.product_id
+WHERE o_d.order_id = 3;
+
+-- multiple/all orders
+SELECT 
+o_d.order_id,
+users.username,
+p_m.name AS item,
+o_d.qty,
+p_m.price AS unit_price,
+o_h.order_date
+FROM order_details AS o_d JOIN order_header AS o_h ON o_d.order_id = o_h.order_id
+JOIN users ON users.user_id = o_h.user_id
+JOIN products_menu AS p_m ON p_m.product_id = o_d.product_id
+
+
+
