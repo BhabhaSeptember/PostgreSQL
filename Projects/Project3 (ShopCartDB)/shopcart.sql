@@ -107,15 +107,28 @@ SELECT * FROM users;
 -- ===== DEMO =====
 -- USER 
 -- adding to cart
-DO $$
+-- DO $$
+-- BEGIN
+-- IF EXISTS ( SELECT * FROM cart WHERE product_id = 5) THEN 
+-- UPDATE cart SET qty = qty + 1 WHERE product_id = 5;
+-- ELSE 
+-- INSERT INTO cart(product_id, qty) VALUES(5, 2);
+-- END IF;
+-- END $$
+-- SELECT * FROM cart
+
+CREATE OR REPLACE FUNCTION add_to_cart(p_product_id INT, p_qty INT) 
+RETURNS VOID AS $$
 BEGIN
-IF EXISTS ( SELECT * FROM cart WHERE product_id = 5) THEN 
-UPDATE cart SET qty = qty + 1 WHERE product_id = 5;
-ELSE 
-INSERT INTO cart(product_id, qty) VALUES(5, 2);
-END IF;
-END $$
-SELECT * FROM cart
+    IF EXISTS (SELECT * FROM cart WHERE product_id = p_product_id) THEN 
+        UPDATE cart SET qty = qty + p_qty WHERE product_id = p_product_id;
+    ELSE 
+        INSERT INTO cart(product_id, qty) VALUES(p_product_id, p_qty);
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
 
 SELECT 
 cart.product_id,
