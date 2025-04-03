@@ -28,7 +28,7 @@ e.g. position(', ' in 'Tan, Bella') = 4
 -- REMOVING CHARACTERS
 trim(characters from string)
 e.g. trim('s' from 'socks') = ock
-     trim(trailing 's' from 'socks') = socks
+     trim(trailing 's' from 'socks') = sock
      trim(leading 's' from 'socks') = ocks
      trim(both 's' from 'suspects') = uspect
      trim(' Pat ') = Pat --removes spaces

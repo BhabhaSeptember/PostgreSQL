@@ -135,7 +135,7 @@ SELECT c2010.geo_name,
 -- Listing 15.13 (Creating Function)
  CREATE OR REPLACE FUNCTION update_personal_days() 
   RETURNS void AS --void = function doesnt return data
-  $$ --PL/pgSQL convention to makr start & end of function command's string
+  $$ --PL/pgSQL convention to make start & end of function command's string
   BEGIN
     UPDATE teachers
     SET personal_days =
