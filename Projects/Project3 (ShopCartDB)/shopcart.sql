@@ -106,7 +106,7 @@ SELECT * FROM users;
 
 -- ===== DEMO =====
 -- USER 
--- adding to cart
+-- adding to cart (without using function)
 -- DO $$
 -- BEGIN
 -- IF EXISTS ( SELECT * FROM cart WHERE product_id = 5) THEN 
@@ -117,7 +117,8 @@ SELECT * FROM users;
 -- END $$
 -- SELECT * FROM cart
 
-CREATE OR REPLACE FUNCTION add_to_cart(p_product_id INT, p_qty INT) 
+-- function to add an item to the cart
+CREATE OR REPLACE FUNCTION add_to_cart(p_product_id int, p_qty int) 
 RETURNS VOID AS $$
 BEGIN
     IF EXISTS (SELECT * FROM cart WHERE product_id = p_product_id) THEN 
@@ -127,9 +128,11 @@ BEGIN
     END IF;
 END;
 $$ LANGUAGE plpgsql;
+-- customer/user adding an item to the cart using the function
+SELECT add_to_cart(2, 3);
+SELECT * FROM cart;
 
-
-
+-- show more details about what is in the cart
 SELECT 
 cart.product_id,
 p_m.name,
@@ -140,17 +143,32 @@ JOIN products_menu AS p_m
 ON cart.product_id = p_m.product_id;
 
 
--- deleting from cart
-DO $$
+-- deleting from cart (without function)
+-- DO $$
+-- BEGIN
+-- IF EXISTS ( SELECT * FROM cart WHERE product_id = 5 AND qty > 1) THEN 
+-- UPDATE cart SET qty = qty - 1 WHERE product_id = 5;
+-- ELSE 
+-- DELETE  FROM cart WHERE product_id = 5;
+-- END IF;
+-- END $$
+
+-- function to delete item from cart
+CREATE OR REPLACE FUNCTION delete_from_cart(p_product_id int) 
+RETURNS VOID AS $$
 BEGIN
-IF EXISTS ( SELECT * FROM cart WHERE product_id = 5 AND qty > 1) THEN 
-UPDATE cart SET qty = qty - 1 WHERE product_id = 5;
-ELSE 
-DELETE  FROM cart WHERE product_id = 5;
-END IF;
-END $$
+    IF EXISTS (SELECT * FROM cart WHERE product_id = p_product_id AND qty > 1) THEN 
+        UPDATE cart SET qty = qty - 1 WHERE product_id = p_product_id;
+    ELSE 
+        DELETE FROM cart WHERE product_id = p.product_id;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+-- customer/user deleting item from cart using the function
+SELECT delete_from_cart(2);
 SELECT * FROM cart
 
+-- show more details about items in cart
 SELECT 
 cart.product_id,
 p_m.name,
@@ -161,12 +179,13 @@ JOIN products_menu AS p_m
 ON cart.product_id = p_m.product_id;
 
 
--- checkout
+-- CHECKOUT (assigning user to an order)
 INSERT INTO order_header(user_id, order_date)
 VALUES 
-(3, now());
+(6, now());
 SELECT * FROM order_header;
 
+-- show more details about assigned orders
 SELECT 
 o_h.order_id,
 o_h.user_id,
@@ -174,15 +193,16 @@ users.username,
 o_h.order_date
 FROM order_header AS o_h JOIN users ON o_h.user_id = users.user_id
 
-
+-- inserting assigned orders into order-details table
 INSERT INTO order_details(order_id, product_id, qty)
 SELECT
 (SELECT MAX(order_id) FROM order_header), product_id, qty 
 FROM cart;
+-- clear cart for next order
 DELETE FROM cart;
 SELECT * FROM cart
 
--- single order
+-- displaying single order details
 SELECT 
 o_d.order_id,
 users.username,
@@ -193,9 +213,9 @@ o_h.order_date
 FROM order_details AS o_d JOIN order_header AS o_h ON o_d.order_id = o_h.order_id
 JOIN users ON users.user_id = o_h.user_id
 JOIN products_menu AS p_m ON p_m.product_id = o_d.product_id
-WHERE o_d.order_id = 3;
+WHERE o_d.order_id = 7;
 
--- multiple/all orders
+-- displaying multiple/all order details
 SELECT 
 o_d.order_id,
 users.username,
@@ -206,6 +226,5 @@ o_h.order_date
 FROM order_details AS o_d JOIN order_header AS o_h ON o_d.order_id = o_h.order_id
 JOIN users ON users.user_id = o_h.user_id
 JOIN products_menu AS p_m ON p_m.product_id = o_d.product_id
-
 
 
