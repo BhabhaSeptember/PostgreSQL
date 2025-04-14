@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS public.status
 CREATE TABLE IF NOT EXISTS public.interests
 (
     interest_id bigserial,
-    interests character varying(150),
+    interest character varying(150),
     PRIMARY KEY (interest_id)
 );
 
@@ -308,6 +308,26 @@ SELECT * FROM contact_interest
 
 
 -- ============================== QUERIES ==============================
+
+-- ============================== LEFT JOIN ==============================
+
+SELECT 
+contact.first_name,
+prof.profession,
+zip.zip_code,
+zip.city,
+zip.province,
+status.status,
+i.interest,
+s.seeking
+FROM my_contacts AS contact
+LEFT JOIN profession AS prof ON contact.prof_id = prof.prof_id
+LEFT JOIN zip_code AS zip ON contact.zip_code = zip.zip_code
+LEFT JOIN status ON contact.status_id = status.status_id 
+LEFT JOIN contact_interest AS c_i ON contact.contact_id = c_i.contact_id
+LEFT JOIN interests AS i ON c_i.interest_id = i.interest_id
+LEFT JOIN contact_seeking AS c_s ON contact.contact_id = c_s.contact_id
+LEFT JOIN seeking AS s ON c_s.seeking_id = s.seeking_id
 
 -- ============================== CONTACT INFO ==============================
 
