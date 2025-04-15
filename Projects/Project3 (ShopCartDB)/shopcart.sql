@@ -129,7 +129,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 -- customer/user adding an item to the cart using the function
-SELECT add_to_cart(2, 3);
+SELECT add_to_cart(5, 4);
 SELECT * FROM cart;
 
 -- show more details about what is in the cart
@@ -165,7 +165,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 -- customer/user deleting item from cart using the function
-SELECT delete_from_cart(2);
+SELECT delete_from_cart(5);
 SELECT * FROM cart
 
 -- show more details about items in cart
@@ -182,7 +182,7 @@ ON cart.product_id = p_m.product_id;
 -- CHECKOUT (assigning user to an order)
 INSERT INTO order_header(user_id, order_date)
 VALUES 
-(6, now());
+(5, now());
 SELECT * FROM order_header;
 
 -- show more details about assigned orders
@@ -198,9 +198,6 @@ INSERT INTO order_details(order_id, product_id, qty)
 SELECT
 (SELECT MAX(order_id) FROM order_header), product_id, qty 
 FROM cart;
--- clear cart for next order
-DELETE FROM cart;
-SELECT * FROM cart
 
 -- displaying single order details
 SELECT 
@@ -213,7 +210,12 @@ o_h.order_date
 FROM order_details AS o_d JOIN order_header AS o_h ON o_d.order_id = o_h.order_id
 JOIN users ON users.user_id = o_h.user_id
 JOIN products_menu AS p_m ON p_m.product_id = o_d.product_id
-WHERE o_d.order_id = 7;
+WHERE o_d.order_id = 9;
+
+
+-- clear cart for next order
+DELETE FROM cart;
+SELECT * FROM cart
 
 -- displaying multiple/all order details
 SELECT 
